@@ -1,4 +1,40 @@
 package com.example.timecapsule_backend.ex;
 
+import lombok.Getter;
+
+@Getter
 public enum ErrorCode {
+
+    // 사용자 관련
+    USER_NOT_FOUND("사용자를 찾을 수 없습니다.", 404),
+    USER_ALREADY_EXISTS("이미 존재하는 사용자입니다.", 409),
+    INVALID_PASSWORD("비밀번호가 올바르지 않습니다.", 400),
+    
+    // 인증 관련
+    UNAUTHORIZED("인증이 필요합니다.", 401),
+    ACCESS_DENIED("접근 권한이 없습니다.", 403),
+    INVALID_TOKEN("유효하지 않은 토큰입니다.", 401),
+    EXPIRED_TOKEN("만료된 토큰입니다.", 401),
+    
+    // 캡슐 관련
+    CAPSULE_NOT_FOUND("캡슐을 찾을 수 없습니다.", 404),
+    CAPSULE_ALREADY_DELIVERED("이미 발송된 캡슐입니다.", 400),
+    INVALID_DELIVERY_TIME("발송 시간이 유효하지 않습니다.", 400),
+    CAPSULE_ACCESS_DENIED("캡슐에 접근할 권한이 없습니다.", 403),
+    
+    // 서버 관련
+    INTERNAL_SERVER_ERROR("서버 내부 오류가 발생했습니다.", 500),
+    DATABASE_ERROR("데이터베이스 오류가 발생했습니다.", 500),
+    
+    // 유효성 검사
+    INVALID_INPUT("입력값이 유효하지 않습니다.", 400),
+    MISSING_REQUIRED_FIELD("필수 필드가 누락되었습니다.", 400);
+
+    private final String message;
+    private final int status;
+
+    ErrorCode(String message, int status) {
+        this.message = message;
+        this.status = status;
+    }
 }

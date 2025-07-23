@@ -1,4 +1,6 @@
 package com.example.timecapsule_backend.domain.capsule;
 
-public interface CapsuleRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CapsuleRepository extends JpaRepository<Capsule, Long> {
 }

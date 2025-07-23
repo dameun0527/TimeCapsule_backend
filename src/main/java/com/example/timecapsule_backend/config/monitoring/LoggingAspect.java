@@ -26,7 +26,7 @@ public class LoggingAspect {
         return null;
     }
 
-    @Around("execution(* com.example.timecapsule_backend.service.delivery.DeliveryService*(..))")
+    @Around("execution(* com.example.timecapsule_backend.service.DeliveryService(..))")
     public Object logDeliveryMethods(ProceedingJoinPoint joinPoint) throws Throwable {
         return null;
     }
