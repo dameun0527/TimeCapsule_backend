@@ -1,0 +1,5 @@
+package com.example.timecapsule_backend.domain.user;
+
+public enum Role {
+    USER
+}
