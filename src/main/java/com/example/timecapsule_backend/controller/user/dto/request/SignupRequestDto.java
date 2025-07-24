@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SignupRequestDto {
 
+    @NotBlank(message = "이름을 입력해주세요.")
+    @Size(min = 1, message = "이름은 최소 1자 이상 입력해야 합니다.")
+    private String username;
+
     @Email
     @NotBlank(message = "이메일을 입력하세요.")
     private String email;
@@ -27,9 +31,5 @@ public class SignupRequestDto {
             message = "비밀번호는 영문자와 숫자 조합으로 최소 8글자, 최대 12글자로 입력해주세요."
     )
     private String password;
-
-    @NotBlank(message = "이름을 입력해주세요.")
-    @Size(min = 1, message = "이름은 최소 1자 이상 입력해야 합니다.")
-    private String name;
 
 }

@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                    ObjectMapper objectMapper,
                                    SecurityResponseHandler securityResponseHandler) {
         super(authenticationManager);
-        setFilterProcessesUrl("/auth/login");
+        setFilterProcessesUrl("/api/auth/login");
 
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;

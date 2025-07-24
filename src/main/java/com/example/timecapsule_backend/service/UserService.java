@@ -29,9 +29,10 @@ public class UserService {
      */
     @Transactional
     public String signup(SignupRequestDto requestDto) {
-        String name = requestDto.getName();
-        String password = passwordEncoder.encode(requestDto.getPassword());
+
+        String userName = requestDto.getUsername();
         String email = requestDto.getEmail();
+        String password = passwordEncoder.encode(requestDto.getPassword());
 
         // 이메일 중복 확인
         if (userRepository.existsByEmail(email)) {
@@ -39,7 +40,7 @@ public class UserService {
         }
 
         Role role = Role.USER;
-        User user = new User(name, password, email, role);
+        User user = new User(userName, email, password, role);
         userRepository.save(user);
         return "회원 가입 성공";
     }
