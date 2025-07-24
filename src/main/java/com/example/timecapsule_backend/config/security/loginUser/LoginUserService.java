@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginUserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .map(LoginUser::new)

@@ -30,12 +30,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         try {
-            if(isPublicPath(request)) {
+            if (isPublicPath(request)) {
                 chain.doFilter(request, response);
                 return;
             }
 
-            if(!isHeaderValid(request)) {
+            if (!isHeaderValid(request)) {
                 throw new JwtException("Authorization 헤더가 누락되었습니다.");
             }
 
@@ -51,9 +51,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             log.debug("유저 인증 완료 - userId : {}, role : {}", loginUser.getUser().getId(), loginUser.getUser().getRole());
 
             chain.doFilter(request, response);
-        } catch(JwtException e) {
+        } catch (JwtException e) {
             throw e;
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("인가 중 서버 및 내부 오류 발생: ", e.getMessage(), e);
             throw e;
         }

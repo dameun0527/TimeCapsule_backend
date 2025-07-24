@@ -16,9 +16,10 @@ import java.io.IOException;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final SecurityResponseHandler securityResponseHandler;
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
         log.error("인증 실패: {}", e.getMessage(), e);
         securityResponseHandler.fail(response, "로그인을 진행해 주세요.", HttpStatus.UNAUTHORIZED);
     }

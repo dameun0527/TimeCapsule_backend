@@ -13,6 +13,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final SecurityResponseHandler securityResponseHandler;
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException e) {
         log.error("권한 없음: {}", e.getMessage(), e);

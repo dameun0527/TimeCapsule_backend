@@ -1,7 +1,5 @@
 package com.example.timecapsule_backend.service;
 
-import com.example.timecapsule_backend.config.security.loginUser.dto.LoginRequest;
-import com.example.timecapsule_backend.config.security.loginUser.dto.LoginResponse;
 import com.example.timecapsule_backend.controller.user.dto.request.SignupRequestDto;
 import com.example.timecapsule_backend.domain.user.Role;
 import com.example.timecapsule_backend.domain.user.User;
@@ -25,6 +23,7 @@ public class UserService {
 
     /**
      * 회원 가입
+     *
      * @param requestDto 가입 요청 정보
      * @return 가입 결과
      */

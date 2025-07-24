@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 public @interface ValidPassword {
 
     String message() default "영문자 숫자 조합 8 ~ 12자 사이로 입력해야 합니다.";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }
