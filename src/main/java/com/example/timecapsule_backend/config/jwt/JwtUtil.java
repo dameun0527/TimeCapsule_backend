@@ -63,6 +63,7 @@ public class JwtUtil {
 
             User user = new User(userId, email, role);
             return new LoginUser(user);
+
         } catch (SecurityException | MalformedJwtException e) {
             log.error("Invalid JWT signature: {}", e.getMessage());
             throw new JwtException("잘못된 JWT 서명입니다");
