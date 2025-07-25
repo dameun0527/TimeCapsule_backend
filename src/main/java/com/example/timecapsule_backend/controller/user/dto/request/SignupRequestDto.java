@@ -1,14 +1,13 @@
 package com.example.timecapsule_backend.controller.user.dto.request;
 
 import com.example.timecapsule_backend.controller.user.dto.valid.ValidPassword;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -31,5 +30,12 @@ public class SignupRequestDto {
             message = "비밀번호는 영문자와 숫자 조합으로 최소 8글자, 최대 12글자로 입력해주세요."
     )
     private String password;
+
+    @NotNull(message = "생년월일을 입력하세요.")
+    private LocalDate birthDate;
+
+    @NotBlank(message = "휴대폰 번호를 입력하세요.")
+    @Pattern(regexp = "^(010)[0-9]{7,8}$", message = "휴대폰 번호 형식이 올바르지 않습니다.")
+    private String phoneNumber;
 
 }
