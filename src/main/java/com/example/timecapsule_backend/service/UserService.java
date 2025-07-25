@@ -1,6 +1,9 @@
 package com.example.timecapsule_backend.service;
 
 import com.example.timecapsule_backend.controller.user.dto.request.SignupRequestDto;
+import com.example.timecapsule_backend.controller.user.dto.request.UserUpdateRequest;
+import com.example.timecapsule_backend.controller.user.dto.response.UserResponse;
+import com.example.timecapsule_backend.controller.user.dto.response.UserUpdateResponse;
 import com.example.timecapsule_backend.domain.user.Role;
 import com.example.timecapsule_backend.domain.user.User;
 import com.example.timecapsule_backend.domain.user.UserRepository;
@@ -11,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 @Slf4j
 @Service
@@ -33,6 +38,8 @@ public class UserService {
         String userName = requestDto.getUsername();
         String email = requestDto.getEmail();
         String password = passwordEncoder.encode(requestDto.getPassword());
+        LocalDate birthDate = requestDto.getBirthDate();
+        String phoneNumber = requestDto.getPhoneNumber();
 
         // 이메일 중복 확인
         if (userRepository.existsByEmail(email)) {
@@ -40,9 +47,24 @@ public class UserService {
         }
 
         Role role = Role.USER;
-        User user = new User(userName, email, password, role);
+        User user = new User(userName, email, password, birthDate, phoneNumber, role);
         userRepository.save(user);
         return "회원 가입 성공";
+
+    }
+
+    // 마이페이지 조회
+    public UserResponse getMyPage(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        return UserResponse.fromEntity(user);
+    }
+
+    // 마이페이지 수정
+    @Transactional
+    public UserUpdateResponse updateMyPage(Long userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        user.updateMyPage(request.getUsername(), request.getBirthDate(), request.getPhoneNumber());
+        return UserUpdateResponse.fromEntity(user);
     }
 
 }
