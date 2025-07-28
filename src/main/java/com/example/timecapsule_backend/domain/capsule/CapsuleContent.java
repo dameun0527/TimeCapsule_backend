@@ -25,8 +25,18 @@ public class CapsuleContent {
     private String title;
 
 
+    @Column(length = 50)
+    private String alias;
+
+
     @Lob
     @Column(nullable = false)
     private String mainMessage;
 
+
+    public void update(String title, String alis, String mainMessage) {
+        this.title = title;
+        this.alias = alis;
+        this.mainMessage = mainMessage;
+    }
 }
