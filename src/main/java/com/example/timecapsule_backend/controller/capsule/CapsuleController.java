@@ -7,6 +7,7 @@ import com.example.timecapsule_backend.controller.capsule.dto.response.CapsuleRe
 import com.example.timecapsule_backend.controller.capsule.dto.response.CapsuleSummaryResponse;
 import com.example.timecapsule_backend.controller.delivery.dto.DeliveryLogResponse;
 import com.example.timecapsule_backend.service.capsule.CapsuleService;
+import com.example.timecapsule_backend.service.delivery.DeliveryService;
 import com.example.timecapsule_backend.util.api.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -32,6 +33,7 @@ import java.util.List;
 public class CapsuleController {
 
     private final CapsuleService capsuleService;
+    private final DeliveryService deliveryService;
 
     @Operation(summary = "타임캡슐 생성", description = "새로운 타임캡슐을 생성합니다.")
     @ApiResponses({
@@ -121,7 +123,7 @@ public class CapsuleController {
             @Parameter(hidden = true) @AuthenticationPrincipal LoginUser loginUser,
             @Parameter(description = "타임캡슐 ID") @PathVariable Long capsuleId) {
         Long userId = loginUser.getUser().getId();
-        List<DeliveryLogResponse> response = capsuleService.getDeliveryLogs(userId, capsuleId);
+        List<DeliveryLogResponse> response = deliveryService.getDeliveryLogs(userId, capsuleId);
         return ResponseEntity.ok(ApiResult.success(response));
     }
 }

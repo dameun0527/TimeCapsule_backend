@@ -4,9 +4,8 @@ import com.example.timecapsule_backend.controller.capsule.dto.request.CapsuleCre
 import com.example.timecapsule_backend.controller.capsule.dto.request.CapsuleUpdateRequest;
 import com.example.timecapsule_backend.controller.capsule.dto.response.CapsuleResponse;
 import com.example.timecapsule_backend.controller.capsule.dto.response.CapsuleSummaryResponse;
-import com.example.timecapsule_backend.controller.delivery.dto.DeliveryLogResponse;
 import com.example.timecapsule_backend.domain.capsule.*;
-import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLogRepository;
+import com.example.timecapsule_backend.service.delivery.DeliveryService;
 import com.example.timecapsule_backend.domain.user.User;
 import com.example.timecapsule_backend.domain.user.UserRepository;
 import com.example.timecapsule_backend.ex.BusinessException;
@@ -27,7 +26,7 @@ public class CapsuleServiceImpl implements CapsuleService {
 
     private final CapsuleRepository capsuleRepository;
     private final UserRepository userRepository;
-    private final DeliveryLogRepository deliveryLogRepository;
+    private final DeliveryService deliveryService;
 
 
     /**
@@ -179,53 +178,4 @@ public class CapsuleServiceImpl implements CapsuleService {
     }
 
 
-    /**
-     * 발송 대상 캡슐 조회 (스케줄러용)
-     * @return 발송 대상 캡슐 목록
-     */
-    @Override
-    public List<Long> findDueCapsuleIds(LocalDateTime now) {
-        return capsuleRepository
-                .findByStatusAndScheduledAtBefore(CapsuleStatus.SCHEDULED, now)
-                .stream()
-                .map(Capsule::getId)
-                .toList();
-    }
-
-
-    /**
-     * 캡슐 상태 변경
-     * @param capsuleId 캡슐 ID
-     * @param status 변경할 상태
-     */
-    @Override
-    @Transactional
-    public void changeStatus(Long capsuleId, CapsuleStatus status) {
-        Capsule capsule = capsuleRepository.findById(capsuleId)
-                .filter(c -> c.getUser().getId().equals(capsuleId))
-                .orElseThrow(() -> new BusinessException(ErrorCode.CAPSULE_NOT_FOUND));
-        switch (status) {
-            case CANCELLED -> capsule.cancel();
-            case DELIVERED -> capsule.markDelivered();
-            default -> throw new BusinessException(ErrorCode.CANCEL_NOT_ALLOWED);
-        }
-    }
-
-
-    /**
-     * 캡슐 발송 이력 조회
-     * @param capsuleId 캡슐 ID
-     * @param userId 사용자 ID
-     * @return 발송 이력 목록
-     */
-    @Override
-    public List<DeliveryLogResponse> getDeliveryLogs(Long userId, Long capsuleId) {
-        capsuleRepository.findById(capsuleId)
-                .filter(c -> c.getUser().getId().equals(userId))
-                .orElseThrow(() -> new BusinessException(ErrorCode.CAPSULE_NOT_FOUND));
-
-        return deliveryLogRepository.findByCapsuleId(capsuleId).stream()
-                .map(DeliveryLogResponse::from)
-                .toList();
-    }
 }
