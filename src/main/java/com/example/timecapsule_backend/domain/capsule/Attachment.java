@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "attachments")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -24,4 +25,13 @@ public class Attachment {
 
     @Column(nullable = false)
     private String storedUrl;
+
+    public static Attachment of(Capsule capsule, String originalFilename, String storedUrl) {
+        Attachment attachment = Attachment.builder()
+                .originalFilename(originalFilename)
+                .storedUrl(storedUrl)
+                .build();
+        attachment.capsule = capsule;
+        return attachment;
+    }
 }

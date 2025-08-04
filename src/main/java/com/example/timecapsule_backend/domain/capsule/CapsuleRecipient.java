@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "capsule_recipients",
 uniqueConstraints = @UniqueConstraint(columnNames = {"capsule_id", "user_id"}))
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -29,6 +30,16 @@ public class CapsuleRecipient {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
     @Column(name = "invited_at", nullable = false)
     private LocalDateTime invitedAt;
+
+    protected CapsuleRecipient(Capsule capsule, User user) {
+        this.capsule = capsule;
+        this.user = user;
+    }
+
+    public static CapsuleRecipient of(Capsule capsule, User user) {
+        return new CapsuleRecipient(capsule, user);
+    }
 }

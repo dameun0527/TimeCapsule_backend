@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Table(name = "capsule_contents")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
@@ -34,9 +35,19 @@ public class CapsuleContent {
     private String mainMessage;
 
 
+    public static CapsuleContent of(Capsule capsule, String title, String alias, String mainMessage) {
+        CapsuleContent content = CapsuleContent.builder()
+                .title(title)
+                .alias(alias)
+                .mainMessage(mainMessage)
+                .build();
+        content.capsule = capsule;
+        return content;
+    }
+
     public void update(String title, String alis, String mainMessage) {
-        this.title = title;
-        this.alias = alis;
-        this.mainMessage = mainMessage;
+        if (title != null) this.title = title;
+        if (alias != null) this.alias = alis;
+        if (mainMessage != null) this.mainMessage = mainMessage;
     }
 }

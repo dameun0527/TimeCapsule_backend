@@ -1,7 +1,7 @@
 package com.example.timecapsule_backend.domain.capsule;
 
 public enum CapsuleStatus {
-    DRAFT,
+    PENDING,
     SCHEDULED,
     DELIVERED,
     FAILED,
