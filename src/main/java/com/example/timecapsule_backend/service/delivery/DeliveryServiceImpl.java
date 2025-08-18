@@ -2,12 +2,14 @@ package com.example.timecapsule_backend.service.delivery;
 
 import com.example.timecapsule_backend.controller.delivery.dto.DeliveryLogResponse;
 import com.example.timecapsule_backend.domain.capsule.Capsule;
+import com.example.timecapsule_backend.domain.capsule.CapsuleRecipient;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRepository;
 import com.example.timecapsule_backend.domain.capsule.CapsuleStatus;
 import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLog;
 import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLogRepository;
 import com.example.timecapsule_backend.ex.BusinessException;
 import com.example.timecapsule_backend.ex.ErrorCode;
+import com.example.timecapsule_backend.service.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final CapsuleRepository capsuleRepository;
     private final DeliveryLogRepository deliveryLogRepository;
+    private final EmailService emailService;
 
     @Override
     public List<Long> findDueCapsuleIds(LocalDateTime now) {
@@ -44,8 +47,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         try {
-            // TODO: 실제 발송 로직 구현 (이메일, WebSocket 등)
-            
+            for (CapsuleRecipient recipient : capsule.getRecipients()) {
+                emailService.sendTimeCapsuleEmail(
+                        recipient.getUser().getEmail(),
+                        capsule.getContent().getTitle(),
+                        capsule.getContent().getMainMessage(),
+                        capsule.getTheme() != null ? capsule.getTheme().getThemeType() : null
+                );
+            }
             capsule.markDelivered();
             deliveryLogRepository.save(
                     DeliveryLog.builder()
@@ -104,7 +113,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     public void processBatchDelivery(List<Long> capsuleIds) {
         log.info("배치 발송 시작. 대상 캡슐 수: {}", capsuleIds.size());
-        
+
         for (Long capsuleId : capsuleIds) {
             try {
                 dispatch(capsuleId);
@@ -112,7 +121,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 log.error("캡슐 {} 배치 발송 중 오류 발생: {}", capsuleId, e.getMessage());
             }
         }
-        
+
         log.info("배치 발송 완료. 처리된 캡슐 수: {}", capsuleIds.size());
     }
 }
