@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: TimeCapsule_backend
+  
+  profiles:
+    active: dev
+    include: secret
+  
+  # JPA Configuration (공통)
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+# Scheduler Configuration (공통)
+scheduler:
+  capsule:
+    delay: 60000
+    max-retries: 3
+    base-backoff-seconds: 30
+
+# API Documentation (공통)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

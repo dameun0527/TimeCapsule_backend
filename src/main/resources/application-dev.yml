@@ -1,0 +1,19 @@
+spring:
+  # Database Configuration (개발환경)
+  datasource:
+    url: jdbc:mysql://localhost:3306/timecapsule?useSSL=false&serverTimezone=Asia/Seoul
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # JPA Configuration (개발환경)
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# Logging Configuration (개발환경)
+logging:
+  level:
+    com.example.timecapsule_backend: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG

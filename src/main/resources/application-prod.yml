@@ -1,0 +1,33 @@
+spring:
+  # Database Configuration (운영환경)
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # JPA Configuration (운영환경)
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+# Logging Configuration (운영환경)
+logging:
+  level:
+    com.example.timecapsule_backend: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+
+# Actuator Configuration (운영환경)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
