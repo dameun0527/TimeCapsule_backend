@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크리스마스 타임캡슐</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f4c75, #3282b8, #bbe1fa);
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #c41e3a, #228b22);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .header::before {
+            content: "🎄";
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px 20px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">❄️</text></svg>') repeat;
+            background-size: 50px 50px;
+            background-opacity: 0.1;
+        }
+        .title {
+            color: #c41e3a;
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #228b22;
+            padding-bottom: 10px;
+        }
+        .message {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-left: 4px solid #c41e3a;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background-color: #228b22;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+        }
+        .christmas-decoration {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎅 크리스마스 타임캡슐이 도착했습니다! 🎁</h1>
+        </div>
+        
+        <div class="content">
+            <div class="christmas-decoration">🎄✨🔔✨🎄</div>
+            
+            <h2 class="title" th:text="${capsuleTitle}">크리스마스 타임캡슐</h2>
+            
+            <div class="message">
+                <div th:utext="${content}">
+                    크리스마스 타임캡슐 내용이 여기에 표시됩니다.
+                </div>
+            </div>
+            
+            <p>Ho Ho Ho! <strong th:text="${recipientEmail}">수신자</strong>님!</p>
+            <p>🎅 산타가 특별한 크리스마스 타임캡슐을 가져왔습니다! 과거의 당신이 크리스마스 마법과 함께 보낸 따뜻한 메시지를 확인해보세요. 🎁</p>
+            
+            <div class="christmas-decoration">🎁🕯️❄️🕯️🎁</div>
+        </div>
+        
+        <div class="footer">
+            <p>🎄 TimeCapsule Christmas Service 🎄</p>
+            <p>Merry Christmas and Happy New Year!</p>
+        </div>
+    </div>
+</body>
+</html>

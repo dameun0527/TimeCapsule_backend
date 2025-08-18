@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타임캡슐 도착</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .title {
+            color: #4CAF50;
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .message {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕰️ 타임캡슐이 도착했습니다!</h1>
+        </div>
+        
+        <div class="content">
+            <h2 class="title" th:text="${capsuleTitle}">타임캡슐 제목</h2>
+            
+            <div class="message">
+                <div th:utext="${content}">
+                    타임캡슐 내용이 여기에 표시됩니다.
+                </div>
+            </div>
+            
+            <p>안녕하세요, <strong th:text="${recipientEmail}">수신자</strong>님!</p>
+            <p>예약하신 타임캡슐이 드디어 도착했습니다. 과거의 당신이 미래의 당신에게 전하는 특별한 메시지를 확인해보세요.</p>
+        </div>
+        
+        <div class="footer">
+            <p>TimeCapsule Service에서 발송되었습니다.</p>
+            <p>이 메시지는 자동으로 발송되었습니다.</p>
+        </div>
+    </div>
+</body>
+</html>
