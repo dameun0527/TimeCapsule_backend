@@ -11,14 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RedisQueueEmailService implements EmailDelivery {
+public class RedisQueueEmailService {
 
     private static final String EMAIL_QUEUE_KEY = "email:queue";
     
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Override
     public void send(EmailPayload payload) {
         try {
             // EmailPayload를 JSON으로 직렬화해서 Redis Queue에 추가
