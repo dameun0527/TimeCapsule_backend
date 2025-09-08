@@ -1,6 +1,7 @@
 package com.example.timecapsule_backend.service.delivery;
 
 import com.example.timecapsule_backend.controller.delivery.dto.DeliveryLogResponse;
+import com.example.timecapsule_backend.controller.email.dto.EmailRequest;
 import com.example.timecapsule_backend.domain.capsule.Capsule;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRecipient;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRepository;
@@ -9,13 +10,15 @@ import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLog;
 import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLogRepository;
 import com.example.timecapsule_backend.ex.BusinessException;
 import com.example.timecapsule_backend.ex.ErrorCode;
-import com.example.timecapsule_backend.service.email.EmailService;
+import com.example.timecapsule_backend.service.email.EmailServiceFacade;
+import com.example.timecapsule_backend.service.email.EmailMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -25,7 +28,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final CapsuleRepository capsuleRepository;
     private final DeliveryLogRepository deliveryLogRepository;
-    private final EmailService emailService;
+    private final EmailServiceFacade emailServiceFacade;
 
     @Override
     public List<Long> findDueCapsuleIds(LocalDateTime now) {
@@ -47,14 +50,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         try {
+            List<EmailRequest> requests = new ArrayList<>();
             for (CapsuleRecipient recipient : capsule.getRecipients()) {
-                emailService.sendTimeCapsuleEmail(
-                        recipient.getUser().getEmail(),
-                        capsule.getContent().getTitle(),
-                        capsule.getContent().getMainMessage(),
-                        capsule.getTheme() != null ? capsule.getTheme().getThemeType() : null
+                requests.add(
+                        new EmailRequest(
+                                recipient.getUser().getEmail(),
+                                capsule.getContent().getTitle(),
+                                capsule.getContent().getMainMessage(),
+                                EmailRequest.EmailType.TIMECAPSULE,
+                                capsule.getTheme() != null ? capsule.getTheme().getThemeType() : null
+                        )
                 );
             }
+
+            emailServiceFacade.sendBulkEmails(requests, EmailMode.ASYNC);
+
             capsule.markDelivered();
             deliveryLogRepository.save(
                     DeliveryLog.builder()
