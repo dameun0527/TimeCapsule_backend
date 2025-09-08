@@ -12,3 +12,5 @@ public class SyncEmailService {
 
     public void send(EmailPayload payload) {
         baseEmailService.send(payload);
+    }
+}
