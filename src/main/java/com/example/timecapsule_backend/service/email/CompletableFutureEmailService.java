@@ -12,10 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class CompletableFutureEmailService {
     private final BaseEmailService baseEmailService;
-    private final @Qualifier("emailTaskExecutor") Executor executor;
+    private final Executor executor;
+
+    public CompletableFutureEmailService(BaseEmailService baseEmailService,
+                                         @Qualifier("emailTaskExecutor") Executor executor) {
+        this.baseEmailService = baseEmailService;
+        this.executor = executor;
+    }
 
     public void send(EmailPayload payload) {
         CompletableFuture
