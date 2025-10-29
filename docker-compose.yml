@@ -13,14 +13,14 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/timecapsule?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=880416
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
-      - JWT_SECRET=timecapsule-docker-secret-key-for-jwt-token-generation
+      - JWT_SECRET=${JWT_SECRET}
       - MAIL_HOST=smtp.gmail.com
       - MAIL_PORT=587
-      - MAIL_USERNAME=jisuryu0527@gmail.com
-      - MAIL_PASSWORD=ydegayvayimqlidg
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
       - MAIL_DEBUG=true
       - MAIL_STARTTLS_ENABLE=true
       - MAIL_AUTH=true
@@ -38,10 +38,10 @@ services:
     image: mysql:8.0
     container_name: timecapsule-mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=880416
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=timecapsule
-      - MYSQL_USER=timecapsule
-      - MYSQL_PASSWORD=880416
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
@@ -90,7 +90,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
     volumes:
       - grafana-data:/var/lib/grafana
       - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
