@@ -35,3 +35,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Secret Configuration ###
+application-secret.yml
+**/application-secret.yml
+.env
+
+### JMeter ###
+*.jmx
+*.jtl
+jmeter.log
+jmeter-report/

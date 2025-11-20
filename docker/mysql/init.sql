@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS timecapsule;
 USE timecapsule;
 
 -- Create user for the application
-CREATE USER IF NOT EXISTS 'timecapsule'@'%' IDENTIFIED BY 'timecapsule123';
+CREATE USER IF NOT EXISTS 'timecapsule'@'%' IDENTIFIED BY '880416';
 GRANT ALL PRIVILEGES ON timecapsule.* TO 'timecapsule'@'%';
 
 -- Enable event scheduler for MySQL events

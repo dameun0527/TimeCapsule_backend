@@ -26,3 +26,29 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# 기본 이메일 발송 전략 설정
+email:
+  delivery:
+    default-strategy: ASYNC  # SYNC, ASYNC, CF, REDIS_QUEUE
+    strategies:
+      sync:
+        description: "동기식 - 안전하지만 느림"
+        timeout: 30s
+      async:
+        description: "Spring @Async - 균형잡힌 성능 (기본값)"
+        thread-pool-size: 10
+      cf:
+        description: "CompletableFuture - 고급 비동기 제어"
+        timeout: 60s
+        parallel-limit: 5
+      redis-queue:
+        description: "Redis Queue - 메시지 큐 기반, 완전한 트랜잭션 분리"
+        worker-interval: 1000ms
+        retry-attempts: 3
+
+# 성능 테스트 설정
+performance:
+  test:
+    max-email-count: 1000
+    default-email-count: 10
