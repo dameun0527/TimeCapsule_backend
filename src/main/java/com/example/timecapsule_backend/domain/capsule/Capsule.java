@@ -163,4 +163,61 @@ public class Capsule extends BaseEntity {
         }
         this.status = CapsuleStatus.CANCELLED;
     }
+
+    // 수신자 발송 상태를 기반으로 캡슐 상태 업데이트
+    public void updateStatusBasedOnRecipients(long baseBackoffSeconds) {
+        if (recipients.isEmpty()) {
+            return;
+        }
+
+        long deliveredCount = recipients.stream()
+                .filter(CapsuleRecipient::isDelivered)
+                .count();
+        long failedCount = recipients.stream()
+                .filter(CapsuleRecipient::isFinallyFailed)
+                .count();
+        long totalCount = recipients.size();
+
+        if (deliveredCount == totalCount) {
+            // 모든 수신자 성공
+            this.status = CapsuleStatus.DELIVERED;
+            this.deliveredAt = LocalDateTime.now();
+            this.nextAttemptAt = null;
+        } else if (failedCount == totalCount) {
+            // 모든 수신자 최종 실패
+            this.status = CapsuleStatus.FAILED;
+            this.nextAttemptAt = null;
+        } else if (deliveredCount > 0 && failedCount > 0) {
+            // 일부 성공, 일부 최종 실패
+            this.status = CapsuleStatus.PARTIALLY_DELIVERED;
+            this.deliveredAt = LocalDateTime.now();
+            this.nextAttemptAt = null;
+        } else {
+            // 일부 성공, 나머지는 재시도 대기 중 -> SCHEDULED 유지
+            this.status = CapsuleStatus.SCHEDULED;
+
+            // 재시도가 필요한 수신자의 최대 retryCount 기준으로 backoff 계산
+            int maxRetryCount = recipients.stream()
+                    .filter(r -> r.getDeliveryStatus() == RecipientDeliveryStatus.PENDING)
+                    .mapToInt(CapsuleRecipient::getRetryCount)
+                    .max()
+                    .orElse(0);
+
+            long backoffSeconds = baseBackoffSeconds * (maxRetryCount + 1);
+            this.nextAttemptAt = LocalDateTime.now().plusSeconds(backoffSeconds);
+        }
+    }
+
+    // 재시도가 필요한 수신자가 있는지 확인
+    public boolean hasRecipientsNeedingRetry() {
+        return recipients.stream()
+                .anyMatch(r -> r.getDeliveryStatus() == RecipientDeliveryStatus.PENDING && r.getRetryCount() > 0);
+    }
+
+    // 아직 발송되지 않은 수신자 목록
+    public List<CapsuleRecipient> getPendingRecipients() {
+        return recipients.stream()
+                .filter(r -> r.getDeliveryStatus() == RecipientDeliveryStatus.PENDING)
+                .toList();
+    }
 }
