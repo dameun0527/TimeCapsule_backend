@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-public class CapsuleSchedulerProperties {
+public class CapsuleSchedulerConfig {
 
     @Value("${scheduler.capsule.delay:60000}")
     private long delay;

@@ -1,6 +1,6 @@
 package com.example.timecapsule_backend.service.scheduler;
 
-import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerProperties;
+import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerConfig;
 import com.example.timecapsule_backend.domain.capsule.Capsule;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRepository;
 import com.example.timecapsule_backend.domain.capsule.CapsuleStatus;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CapsuleSchedulerService {
 
-    private final CapsuleSchedulerProperties schedulerProperties;
+    private final CapsuleSchedulerConfig schedulerConfig;
     private final CapsuleRepository capsuleRepository;
     private final DeliveryService deliveryService;
 
@@ -33,14 +33,10 @@ public class CapsuleSchedulerService {
         for (Capsule capsule : dueCapsules) {
             try {
                 deliveryService.dispatch(capsule.getId());
-                log.info("캡슐 {} 자동 발송 성공", capsule.getId());
+                log.info("캡슐 {} 발송 처리 완료. 최종 상태: {}", capsule.getId(), capsule.getStatus());
             } catch (Exception e) {
-                log.error("캡슐 {} 자동 발송 실패: {}", capsule.getId(), e.getMessage(), e);
-                long backOffSeconds = schedulerProperties.getBaseBackoffSeconds() * (capsule.getRetryCount() + 1);
-                capsule.markFailedAttempt(backOffSeconds, schedulerProperties.getMaxRetries());
-                capsuleRepository.save(capsule);
-                log.info("캡슐 {} 실패 처리 후 상태={}, retryCount={}, nextAttemptAt={}",
-                        capsule.getId(), capsule.getStatus(), capsule.getRetryCount(), capsule.getNextAttemptAt());
+                // dispatch 내부에서 개별 수신자별로 처리하므로, 예외가 발생하는 경우는 시스템 오류
+                log.error("캡슐 {} 발송 처리 중 예기치 않은 시스템 오류 발생: {}", capsule.getId(), e.getMessage(), e);
             }
         }
     }
