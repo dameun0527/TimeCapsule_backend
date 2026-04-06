@@ -1,5 +1,5 @@
 # Multi-stage build for Spring Boot application
-FROM openjdk:17-jdk-slim as build
+FROM eclipse-temurin:17-jdk-jammy as build
 
 # Install necessary packages
 RUN apt-get update && apt-get install -y \
@@ -25,7 +25,7 @@ COPY src src
 RUN ./gradlew build -x test
 
 # Runtime stage
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk-jammy
 
 # Install necessary packages for runtime
 RUN apt-get update && apt-get install -y \

@@ -1,10 +1,27 @@
+server:
+  port: 8081
+
 spring:
+  # Mail Configuration (개발환경 - MailHog)
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          debug: false
+          connectiontimeout: 5000
+          starttls:
+            enable: false
+
   # Database Configuration (개발환경)
   datasource:
-    url: jdbc:mysql://localhost:3307/timecapsule?useSSL=false&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3307/timecapsule?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${MYSQL_USER:timecapsule}
-    password: ${MYSQL_PASSWORD:your-password-here}
+    # username과 password는 application-secret.yml에서 관리
   
   # JPA Configuration (개발환경)
   jpa:
