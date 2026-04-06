@@ -1,51 +1,48 @@
 package com.example.timecapsule_backend.config.jwt;
 
+import com.example.timecapsule_backend.config.security.SecurityConfig;
 import com.example.timecapsule_backend.config.security.loginUser.LoginUser;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
-public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+@RequiredArgsConstructor
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private static final String AUTH_PATH = "auth";
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        super(authenticationManager);
-        this.jwtUtil = jwtUtil;
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return Arrays.stream(SecurityConfig.PUBLIC_URLS)
+                .anyMatch(pattern -> pathMatcher.match(pattern, uri));
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         try {
-            if (isPublicPath(request)) {
-                chain.doFilter(request, response);
-                return;
-            }
-
             if (!isHeaderValid(request)) {
                 throw new JwtException("Authorization 헤더가 누락되었습니다.");
             }
 
-            // 토큰 파싱
             String token = jwtUtil.substringToken(request.getHeader(JwtVo.HEADER));
-
-            // 토큰 검증
             LoginUser loginUser = jwtUtil.validateToken(token);
 
-            // 인증된 유저 컨텍스트에 설정
             Authentication authentication = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("유저 인증 완료 - userId : {}, role : {}", loginUser.getUser().getId(), loginUser.getUser().getRole());
@@ -54,7 +51,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } catch (JwtException e) {
             throw e;
         } catch (Exception e) {
-            log.error("인가 중 서버 및 내부 오류 발생: ", e.getMessage(), e);
+            log.error("인가 중 서버 및 내부 오류 발생: {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -62,17 +59,5 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private boolean isHeaderValid(HttpServletRequest request) {
         String header = request.getHeader(JwtVo.HEADER);
         return header != null && header.startsWith(JwtVo.TOKEN_PREFIX);
-    }
-
-    private boolean isPublicPath(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        return uri.contains(AUTH_PATH)
-            || uri.startsWith("/actuator/health")
-            || uri.startsWith("/actuator/prometheus")
-            || uri.startsWith("/api/email/performance-test")
-            || uri.startsWith("/swagger-ui")
-            || uri.startsWith("/api-docs")
-            || uri.startsWith("/v3/api-docs")
-            || uri.startsWith("/webjars/");
     }
 }
