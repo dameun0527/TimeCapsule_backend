@@ -1,19 +1,12 @@
 package com.example.timecapsule_backend.service.email;
 
+import com.example.timecapsule_backend.config.email.EmailDeliveryConfig;
 import com.example.timecapsule_backend.controller.email.dto.EmailPayload;
-import com.example.timecapsule_backend.controller.email.dto.EmailPerformanceTestRequest;
-import com.example.timecapsule_backend.controller.email.dto.EmailPerformanceTestResponse;
 import com.example.timecapsule_backend.controller.email.dto.EmailRequest;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.function.Consumer;
-
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +16,7 @@ public class EmailServiceFacade {
     private final AsyncEmailService asyncEmailService;
     private final CompletableFutureEmailService completableFutureEmailService;
     private final RedisQueueEmailService redisQueueEmailService;
-    private final MeterRegistry meterRegistry;
-
+    private final EmailDeliveryConfig emailDeliveryConfig;
 
     // ================== 수동 단건 전송 ==================
     public void sendSyncEmail(EmailRequest emailRequest) {
@@ -43,29 +35,9 @@ public class EmailServiceFacade {
         redisQueueEmailService.send(toPayload(emailRequest));
     }
 
-    // ================== 대량 전송(배치/수동 공용) ==================
-    public void sendBulkEmails(List<EmailRequest> requests, EmailMode mode) {
-        Consumer<EmailPayload> sender = pick(mode);
-        for (EmailRequest request : requests) {
-            sender.accept(toPayload(request));
-        }
-    }
-
-    // ================== 성능 테스트 ==================
-    public EmailPerformanceTestResponse performSyncTest(EmailPerformanceTestRequest request) {
-        return bulk(request, "SYNC", pick(EmailMode.SYNC));
-    }
-
-    public EmailPerformanceTestResponse performAsyncTest(EmailPerformanceTestRequest request) {
-        return bulk(request, "ASYNC", pick(EmailMode.ASYNC));
-    }
-
-    public EmailPerformanceTestResponse performCfTest(EmailPerformanceTestRequest request) {
-        return bulk(request, "CF", pick(EmailMode.CF));
-    }
-
-    public EmailPerformanceTestResponse performRedisQueueTest(EmailPerformanceTestRequest request) {
-        return bulk(request, "REDIS_QUEUE", pick(EmailMode.REDIS_QUEUE));
+    // ================== 기본 전략으로 단건 전송 ==================
+    public void sendByDefaultStrategy(EmailRequest emailRequest) {
+        pick(emailDeliveryConfig.getDefaultStrategy()).accept(toPayload(emailRequest));
     }
 
     // ================== 내부 공통 ==================
@@ -89,57 +61,5 @@ public class EmailServiceFacade {
                 emailRequest.themeType(),
                 null
         );
-    }
-
-    private EmailPerformanceTestResponse bulk(EmailPerformanceTestRequest request,
-                                              String label,
-                                              Consumer<EmailPayload> sender) {
-        long t0 = System.nanoTime();
-        LocalDateTime start = LocalDateTime.now();
-        int count = request.getEmailCount();
-
-        Timer timer = Timer.builder("email.performance.test")
-                .tag("strategy", label)
-                .register(this.meterRegistry);
-        try {
-            for (int i = 0; i < count; i++) {
-                EmailRequest emailRequest = new EmailRequest(
-                        request.getTo(),
-                        request.getSubject() + " #" + (i + 1),
-                        request.getContent() + " (테스트 #" + (i + 1) + ")",
-                        request.getEmailType(),
-                        request.getThemeType()
-                );
-                timer.record(() -> {
-                    EmailPayload payload = toPayload(emailRequest);
-                    sender.accept(payload);
-                });
-                this.meterRegistry.counter("email.test.count", "strategy", label, "status", "success").increment();
-            }
-            long totalMs = Duration.ofNanos(System.nanoTime() - t0).toMillis();
-            double tps = count == 0 ? 0 : (count * 1000.0 / Math.max(totalMs, 1));
-
-            return EmailPerformanceTestResponse.builder()
-                    .startTime(start)
-                    .endTime(LocalDateTime.now())
-                    .totalDurationMs(totalMs)
-                    .emailCount(count)
-                    .averageDurationMs(count == 0 ? 0 : totalMs * 1.0 / count)
-                    .throughputPerSecond(tps)
-                    .testType(label)
-                    .success(true)
-                    .build();
-        } catch (Exception e) {
-            long totalMs = Duration.ofNanos(System.nanoTime() - t0).toMillis();
-            return EmailPerformanceTestResponse.builder()
-                    .startTime(start)
-                    .endTime(LocalDateTime.now())
-                    .totalDurationMs(totalMs)
-                    .emailCount(count)
-                    .testType(label)
-                    .success(false)
-                    .errorMessage(e.getMessage())
-                    .build();
-        }
     }
 }

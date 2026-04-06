@@ -26,7 +26,8 @@ public enum ErrorCode {
     
     // 유효성 검사
     INVALID_INPUT("입력값이 유효하지 않습니다.", 400),
-    MISSING_REQUIRED_FIELD("필수 필드가 누락되었습니다.", 400);
+    MISSING_REQUIRED_FIELD("필수 필드가 누락되었습니다.", 400),
+    INVALID_EMAIL_COUNT("이메일 발송 개수가 허용 범위를 초과했습니다.", 400);
 
     private final String message;
     private final int status;

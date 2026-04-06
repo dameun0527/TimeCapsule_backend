@@ -3,6 +3,7 @@ package com.example.timecapsule_backend.controller.email;
 import com.example.timecapsule_backend.controller.email.dto.EmailRequest;
 import com.example.timecapsule_backend.controller.email.dto.EmailPerformanceTestRequest;
 import com.example.timecapsule_backend.controller.email.dto.EmailPerformanceTestResponse;
+import com.example.timecapsule_backend.service.email.EmailPerformanceTestFacade;
 import com.example.timecapsule_backend.service.email.EmailServiceFacade;
 import com.example.timecapsule_backend.util.api.ApiResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class EmailController {
 
     private final EmailServiceFacade emailServiceFacade;
+    private final EmailPerformanceTestFacade emailPerformanceTestFacade;
 
     // ================== 단건 발송 API ==================
     @PostMapping("/send/sync")
@@ -27,7 +29,7 @@ public class EmailController {
         emailServiceFacade.sendSyncEmail(emailRequest);
         return ResponseEntity.ok(ApiResult.success("이메일이 동기 방식으로 성공적으로 발송되었습니다."));
     }
-    
+
     @PostMapping("/send/async")
     @Operation(summary = "비동기 이메일 발송", description = "이메일을 비동기 방식으로 발송합니다.")
     public ResponseEntity<ApiResult<String>> sendEmailAsync(@Valid @RequestBody EmailRequest emailRequest) {
@@ -53,28 +55,24 @@ public class EmailController {
     @PostMapping("/performance-test/sync")
     @Operation(summary = "동기 이메일 성능 테스트", description = "동기 방식으로 대량 이메일 발송 성능을 테스트합니다.")
     public ResponseEntity<ApiResult<EmailPerformanceTestResponse>> testSyncPerformance(@Valid @RequestBody EmailPerformanceTestRequest request) {
-        EmailPerformanceTestResponse response = emailServiceFacade.performSyncTest(request);
-        return ResponseEntity.ok(ApiResult.success(response));
+        return ResponseEntity.ok(ApiResult.success(emailPerformanceTestFacade.performSyncTest(request)));
     }
-    
+
     @PostMapping("/performance-test/async")
     @Operation(summary = "비동기 이메일 성능 테스트", description = "비동기 방식으로 대량 이메일 발송 성능을 테스트합니다.")
     public ResponseEntity<ApiResult<EmailPerformanceTestResponse>> testAsyncPerformance(@Valid @RequestBody EmailPerformanceTestRequest request) {
-        EmailPerformanceTestResponse response = emailServiceFacade.performAsyncTest(request);
-        return ResponseEntity.ok(ApiResult.success(response));
+        return ResponseEntity.ok(ApiResult.success(emailPerformanceTestFacade.performAsyncTest(request)));
     }
 
     @PostMapping("/performance-test/cf")
     @Operation(summary = "CompletableFuture 이메일 성능 테스트", description = "CompletableFuture 방식으로 대량 이메일 발송 성능을 테스트합니다.")
     public ResponseEntity<ApiResult<EmailPerformanceTestResponse>> testCfPerformance(@Valid @RequestBody EmailPerformanceTestRequest request) {
-        EmailPerformanceTestResponse response = emailServiceFacade.performCfTest(request);
-        return ResponseEntity.ok(ApiResult.success(response));
+        return ResponseEntity.ok(ApiResult.success(emailPerformanceTestFacade.performCfTest(request)));
     }
 
     @PostMapping("/performance-test/redis-queue")
     @Operation(summary = "Redis Queue 이메일 성능 테스트", description = "Redis Queue 방식으로 대량 이메일 발송 성능을 테스트합니다.")
     public ResponseEntity<ApiResult<EmailPerformanceTestResponse>> testRedisQueuePerformance(@Valid @RequestBody EmailPerformanceTestRequest request) {
-        EmailPerformanceTestResponse response = emailServiceFacade.performRedisQueueTest(request);
-        return ResponseEntity.ok(ApiResult.success(response));
+        return ResponseEntity.ok(ApiResult.success(emailPerformanceTestFacade.performRedisQueueTest(request)));
     }
 }

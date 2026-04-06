@@ -12,14 +12,12 @@ import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLogRepository;
 import com.example.timecapsule_backend.ex.BusinessException;
 import com.example.timecapsule_backend.ex.ErrorCode;
 import com.example.timecapsule_backend.service.email.EmailServiceFacade;
-import com.example.timecapsule_backend.service.email.EmailMode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -73,8 +71,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         capsule.getTheme() != null ? capsule.getTheme().getThemeType() : null
                 );
 
-                // 개별 이메일 발송
-                emailServiceFacade.sendSyncEmail(emailRequest);
+                // 개별 이메일 발송 (yml의 default-strategy 기반)
+                emailServiceFacade.sendByDefaultStrategy(emailRequest);
 
                 // 발송 성공
                 recipient.markDelivered();

@@ -2,7 +2,6 @@ package com.example.timecapsule_backend.controller.email.dto;
 
 import com.example.timecapsule_backend.domain.capsule.ThemeType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,7 +19,6 @@ public class EmailPerformanceTestRequest {
     @Schema(description = "테스트할 이메일 개수", example = "10")
     @NotNull
     @Min(1)
-    @Max(1000)
     private Integer emailCount;
     
     @Schema(description = "수신자 이메일", example = "test@example.com")
