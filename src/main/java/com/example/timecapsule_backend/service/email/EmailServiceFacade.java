@@ -4,6 +4,8 @@ import com.example.timecapsule_backend.controller.email.dto.EmailPayload;
 import com.example.timecapsule_backend.controller.email.dto.EmailPerformanceTestRequest;
 import com.example.timecapsule_backend.controller.email.dto.EmailPerformanceTestResponse;
 import com.example.timecapsule_backend.controller.email.dto.EmailRequest;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class EmailServiceFacade {
     private final AsyncEmailService asyncEmailService;
     private final CompletableFutureEmailService completableFutureEmailService;
     private final RedisQueueEmailService redisQueueEmailService;
+    private final MeterRegistry meterRegistry;
 
 
     // ================== 수동 단건 전송 ==================
@@ -95,6 +98,9 @@ public class EmailServiceFacade {
         LocalDateTime start = LocalDateTime.now();
         int count = request.getEmailCount();
 
+        Timer timer = Timer.builder("email.performance.test")
+                .tag("strategy", label)
+                .register(this.meterRegistry);
         try {
             for (int i = 0; i < count; i++) {
                 EmailRequest emailRequest = new EmailRequest(
@@ -104,7 +110,11 @@ public class EmailServiceFacade {
                         request.getEmailType(),
                         request.getThemeType()
                 );
-                sender.accept(toPayload(emailRequest));
+                timer.record(() -> {
+                    EmailPayload payload = toPayload(emailRequest);
+                    sender.accept(payload);
+                });
+                this.meterRegistry.counter("email.test.count", "strategy", label, "status", "success").increment();
             }
             long totalMs = Duration.ofNanos(System.nanoTime() - t0).toMillis();
             double tps = count == 0 ? 0 : (count * 1000.0 / Math.max(totalMs, 1));
