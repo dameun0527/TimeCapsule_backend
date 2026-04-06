@@ -20,7 +20,7 @@ public class EmailPerformanceTestRequest {
     @Schema(description = "테스트할 이메일 개수", example = "10")
     @NotNull
     @Min(1)
-    @Max(100)
+    @Max(1000)
     private Integer emailCount;
     
     @Schema(description = "수신자 이메일", example = "test@example.com")
