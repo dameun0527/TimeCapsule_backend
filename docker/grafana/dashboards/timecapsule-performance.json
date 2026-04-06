@@ -1,0 +1,254 @@
+{
+  "dashboard": {
+    "title": "TimeCapsule 이메일 성능 대시보드",
+    "tags": ["timecapsule", "email", "performance"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "📊 초당 이메일 처리량 (Throughput)",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "rate(executor_completed_tasks_total{name=\"emailTaskExecutor\"}[1m])",
+            "legendFormat": "완료된 작업/초",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "ops", "label": "작업/초"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 2,
+        "title": "⏱️ API 응답 시간 (Latency)",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/email/performance-test/.*\"}[5m])) by (uri, le))",
+            "legendFormat": "P50 - {{uri}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/email/performance-test/.*\"}[5m])) by (uri, le))",
+            "legendFormat": "P95 - {{uri}}",
+            "refId": "B"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/email/performance-test/.*\"}[5m])) by (uri, le))",
+            "legendFormat": "P99 - {{uri}}",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "응답 시간"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "🔥 활성 이메일 발송 스레드",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 8, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "executor_active_threads{name=\"emailTaskExecutor\"}",
+            "legendFormat": "활성 스레드",
+            "refId": "A"
+          },
+          {
+            "expr": "executor_pool_max_threads{name=\"emailTaskExecutor\"}",
+            "legendFormat": "최대 스레드",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "스레드 수"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "📥 대기 중인 작업 (Queue Size)",
+        "type": "graph",
+        "gridPos": {"x": 8, "y": 8, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "executor_queue_remaining_tasks{name=\"emailTaskExecutor\"}",
+            "legendFormat": "대기 작업 수",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "작업 수"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "✅ 완료된 총 작업 수",
+        "type": "graph",
+        "gridPos": {"x": 16, "y": 8, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "executor_completed_tasks_total{name=\"emailTaskExecutor\"}",
+            "legendFormat": "완료된 작업",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "작업 수"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 6,
+        "title": "💾 JVM 힙 메모리 사용률",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 14, "w": 12, "h": 7},
+        "targets": [
+          {
+            "expr": "(jvm_memory_used_bytes{area=\"heap\"} / jvm_memory_max_bytes{area=\"heap\"}) * 100",
+            "legendFormat": "힙 사용률 (%)",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "사용률", "max": 100, "min": 0},
+          {"format": "short"}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [80], "type": "gt"},
+              "query": {"params": ["A", "5m", "now"]},
+              "type": "query"
+            }
+          ],
+          "name": "힙 메모리 사용률 경고"
+        }
+      },
+      {
+        "id": 7,
+        "title": "🗑️ GC 발생 빈도",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 14, "w": 12, "h": 7},
+        "targets": [
+          {
+            "expr": "rate(jvm_gc_pause_seconds_count{action=\"end of major GC\"}[1m])",
+            "legendFormat": "Major GC/분",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(jvm_gc_pause_seconds_count{action=\"end of minor GC\"}[1m])",
+            "legendFormat": "Minor GC/분",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "ops", "label": "GC/초"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "🔌 DB 커넥션 풀 상태",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 21, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "hikaricp_connections_active",
+            "legendFormat": "활성 커넥션",
+            "refId": "A"
+          },
+          {
+            "expr": "hikaricp_connections_idle",
+            "legendFormat": "유휴 커넥션",
+            "refId": "B"
+          },
+          {
+            "expr": "hikaricp_connections_max",
+            "legendFormat": "최대 커넥션",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "커넥션 수"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "❌ HTTP 에러율",
+        "type": "graph",
+        "gridPos": {"x": 8, "y": 21, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"2..\"}[5m])) / sum(rate(http_server_requests_seconds_count[5m])) * 100",
+            "legendFormat": "성공률 (2xx)",
+            "refId": "A"
+          },
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"4..\"}[5m])) / sum(rate(http_server_requests_seconds_count[5m])) * 100",
+            "legendFormat": "클라이언트 에러 (4xx)",
+            "refId": "B"
+          },
+          {
+            "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m])) / sum(rate(http_server_requests_seconds_count[5m])) * 100",
+            "legendFormat": "서버 에러 (5xx)",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "비율", "max": 100, "min": 0},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 10,
+        "title": "🖥️ CPU 사용률",
+        "type": "graph",
+        "gridPos": {"x": 16, "y": 21, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "system_cpu_usage * 100",
+            "legendFormat": "시스템 CPU",
+            "refId": "A"
+          },
+          {
+            "expr": "process_cpu_usage * 100",
+            "legendFormat": "프로세스 CPU",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "사용률", "max": 100, "min": 0},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 11,
+        "title": "📈 전략별 요청 수 비교",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 27, "w": 24, "h": 8},
+        "targets": [
+          {
+            "expr": "sum by (uri) (rate(http_server_requests_seconds_count{uri=~\"/api/email/performance-test/.*\"}[5m])) * 60",
+            "legendFormat": "{{uri}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqpm", "label": "요청/분"},
+          {"format": "short"}
+        ]
+      }
+    ]
+  }
+}

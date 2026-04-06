@@ -17,16 +17,10 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
       - JWT_SECRET=${JWT_SECRET}
-      - MAIL_HOST=smtp.gmail.com
-      - MAIL_PORT=587
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - MAIL_DEBUG=true
-      - MAIL_STARTTLS_ENABLE=true
-      - MAIL_AUTH=true
     depends_on:
       - mysql
       - redis
+      - mailhog
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
@@ -95,6 +89,19 @@ services:
       - grafana-data:/var/lib/grafana
       - ./docker/grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+    networks:
+      - timecapsule-network
+    depends_on:
+      - prometheus
+
+  # MailHog (SMTP Mock Server for Testing)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: timecapsule-mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
     restart: unless-stopped
     networks:
       - timecapsule-network
