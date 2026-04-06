@@ -65,6 +65,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private boolean isPublicPath(HttpServletRequest request) {
-        return request.getRequestURI().contains(AUTH_PATH);
+        String uri = request.getRequestURI();
+        return uri.contains(AUTH_PATH)
+            || uri.startsWith("/actuator/health")
+            || uri.startsWith("/actuator/prometheus")
+            || uri.startsWith("/api/email/performance-test")
+            || uri.startsWith("/swagger-ui")
+            || uri.startsWith("/api-docs")
+            || uri.startsWith("/v3/api-docs")
+            || uri.startsWith("/webjars/");
     }
 }
