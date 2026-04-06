@@ -19,7 +19,11 @@ public class LoggingAspect {
         try {
             Object result = joinPoint.proceed();
             long executionTime = System.currentTimeMillis() - startTime;
-            log.debug("[Service] {} executed in {}ms", methodName, executionTime);
+            if (executionTime > 100) {
+                log.debug("[Service] {} executed in {}ms", methodName, executionTime);
+            } else {
+                log.trace("[Service] {} executed in {}ms", methodName, executionTime);
+            }
             return result;
         } catch (Exception e) {
             log.error("[Service] {} failed: {}", methodName, e.getMessage());
@@ -75,12 +79,4 @@ public class LoggingAspect {
         }
     }
 
-    private void logExecutionTime(String methodName, long executionTime) {
-    }
-
-    private void logMethodParameters(String methodName, Object[] args) {
-    }
-
-    private void logException(String methodName, Exception exception) {
-    }
 }
