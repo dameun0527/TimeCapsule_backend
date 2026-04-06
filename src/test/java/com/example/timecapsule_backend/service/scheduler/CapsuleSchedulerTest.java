@@ -1,6 +1,6 @@
 package com.example.timecapsule_backend.service.scheduler;
 
-import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerProperties;
+import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 class CapsuleSchedulerTest {
 
     @Mock
-    private CapsuleSchedulerProperties capsuleSchedulerProperties;
+    private CapsuleSchedulerConfig capsuleSchedulerProperties;
 
     @Mock
     private CapsuleSchedulerService capsuleSchedulerService;

@@ -1,6 +1,6 @@
 package com.example.timecapsule_backend.service.scheduler;
 
-import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerProperties;
+import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerConfig;
 import com.example.timecapsule_backend.domain.capsule.Capsule;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRepository;
 import com.example.timecapsule_backend.domain.capsule.CapsuleStatus;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class CapsuleSchedulerServiceSimpleTest {
 
     @Mock
-    private CapsuleSchedulerProperties schedulerProperties;
+    private CapsuleSchedulerConfig schedulerProperties;
 
     @Mock
     private CapsuleRepository capsuleRepository;

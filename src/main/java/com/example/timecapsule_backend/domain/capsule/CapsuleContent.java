@@ -45,9 +45,9 @@ public class CapsuleContent {
         return content;
     }
 
-    public void update(String title, String alis, String mainMessage) {
+    public void update(String title, String alias, String mainMessage) {
         if (title != null) this.title = title;
-        if (alias != null) this.alias = alis;
+        if (alias != null) this.alias = alias;
         if (mainMessage != null) this.mainMessage = mainMessage;
     }
 }
