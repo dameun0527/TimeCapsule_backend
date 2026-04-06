@@ -1,4 +1,19 @@
 spring:
+  # Mail Configuration (운영환경)
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          debug: false
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+
   # Database Configuration (운영환경)
   datasource:
     url: ${DB_URL}
