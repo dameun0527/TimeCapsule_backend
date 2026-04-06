@@ -91,7 +91,4 @@ public class BaseEmailService {
         };
     }
 
-    protected static long ms(long t0) {
-        return Duration.ofNanos(System.nanoTime() - t0).toMillis();
-    }
 }

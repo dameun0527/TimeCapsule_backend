@@ -75,11 +75,6 @@ public class Capsule extends BaseEntity {
                 .build();
     }
 
-    // 재시도 횟수
-    @Column(nullable = false)
-    @Builder.Default
-    private int retryCount = 0;
-
     private LocalDateTime nextAttemptAt;
 
     @Version
@@ -143,18 +138,6 @@ public class Capsule extends BaseEntity {
             throw new BusinessException(ErrorCode.DELIVER_NOT_ALLOWED);
         }
         this.status = CapsuleStatus.FAILED;
-    }
-
-    public void markFailedAttempt(long backoffSeconds, int maxRetries) {
-        if (status != CapsuleStatus.SCHEDULED) {
-            throw new BusinessException(ErrorCode.DELIVER_NOT_ALLOWED);
-        }
-        this.retryCount += 1;
-        if (this.retryCount < maxRetries) {
-            this.nextAttemptAt = LocalDateTime.now().plusSeconds(backoffSeconds);
-        } else {
-            this.status = CapsuleStatus.FAILED;
-        }
     }
 
     public void cancel() {

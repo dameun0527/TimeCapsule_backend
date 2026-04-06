@@ -53,6 +53,7 @@ public class CapsuleRecipient {
     protected CapsuleRecipient(Capsule capsule, User user) {
         this.capsule = capsule;
         this.user = user;
+        this.invitedAt = LocalDateTime.now();
         this.deliveryStatus = RecipientDeliveryStatus.PENDING;
         this.retryCount = 0;
     }
