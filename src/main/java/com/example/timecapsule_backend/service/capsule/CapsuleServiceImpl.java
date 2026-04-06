@@ -4,7 +4,12 @@ import com.example.timecapsule_backend.controller.capsule.dto.request.CapsuleCre
 import com.example.timecapsule_backend.controller.capsule.dto.request.CapsuleUpdateRequest;
 import com.example.timecapsule_backend.controller.capsule.dto.response.CapsuleResponse;
 import com.example.timecapsule_backend.controller.capsule.dto.response.CapsuleSummaryResponse;
-import com.example.timecapsule_backend.domain.capsule.*;
+import com.example.timecapsule_backend.domain.capsule.Attachment;
+import com.example.timecapsule_backend.domain.capsule.Capsule;
+import com.example.timecapsule_backend.domain.capsule.CapsuleContent;
+import com.example.timecapsule_backend.domain.capsule.CapsuleRecipient;
+import com.example.timecapsule_backend.domain.capsule.CapsuleRepository;
+import com.example.timecapsule_backend.domain.capsule.CapsuleTheme;
 import com.example.timecapsule_backend.service.delivery.DeliveryService;
 import com.example.timecapsule_backend.domain.user.User;
 import com.example.timecapsule_backend.domain.user.UserRepository;
