@@ -1,0 +1,6 @@
+Label,# Samples,Average,Min,Max,Std. Dev.,Error %,Throughput,Received KB/sec,Sent KB/sec,Avg. Bytes
+SYNC Email Send,50,16,14,21,1.57,0.000%,10.88613,7.30,5.49,686.8
+ASYNC Email Send,50,2,1,11,1.90,0.000%,11.05950,7.32,5.59,677.8
+CF Email Send,50,1,0,5,0.83,0.000%,11.09385,7.31,5.55,674.8
+REDIS_QUEUE Email Send,50,3,3,9,1.21,0.000%,11.06684,7.39,5.73,683.7
+TOTAL,200,5,0,21,6.20,0.000%,11.02111,7.33,5.59,680.8
