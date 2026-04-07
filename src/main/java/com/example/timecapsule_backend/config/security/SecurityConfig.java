@@ -73,19 +73,20 @@ public class SecurityConfig {
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(configurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilter(jwtAuthenticationFilter(authenticationManager, jwtUtil, objectMapper, securityResponseHandler()))
                 .addFilterAfter(jwtAuthorizationFilter(jwtUtil), JwtAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter(securityResponseHandler()), JwtAuthorizationFilter.class)
+                .addFilterBefore(jwtExceptionFilter(securityResponseHandler()), JwtAuthenticationFilter.class)
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(customAuthenticationEntryPoint())
                         .accessDeniedHandler(customAccessDeniedHandler()));
+
         return http.build();
     }
 
