@@ -28,8 +28,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return Arrays.stream(SecurityConfig.PUBLIC_URLS)
-                .anyMatch(pattern -> pathMatcher.match(pattern, uri));
+        String servletPath = request.getServletPath();
+
+        boolean isPublic = Arrays.stream(SecurityConfig.PUBLIC_URLS)
+                .anyMatch(pattern -> pathMatcher.match(pattern, uri) || pathMatcher.match(pattern, servletPath));
+        log.info("인증 제외 체크 - URI: {}, ServletPath: {}, 결과: {}", uri, servletPath, isPublic);
+        return isPublic;
     }
 
     @Override
