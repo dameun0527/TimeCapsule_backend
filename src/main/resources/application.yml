@@ -30,7 +30,7 @@ springdoc:
 # 기본 이메일 발송 전략 설정
 email:
   delivery:
-    default-strategy: ASYNC  # SYNC, ASYNC, CF, REDIS_QUEUE
+    default-strategy: SYNC  # SYNC, ASYNC, CF, REDIS_QUEUE
     strategies:
       sync:
         description: "동기식 - 안전하지만 느림"
