@@ -41,4 +41,17 @@ public interface DeliveryService {
      * @param capsuleIds 발송할 캡슐 ID 목록
      */
     void processBatchDelivery(List<Long> capsuleIds);
+
+    /**
+     * 수신자 발송 성공 처리 (Redis Worker용)
+     * @param recipientId 수신자 ID
+     */
+    void markRecipientDelivered(Long recipientId);
+
+    /**
+     * 수신자 발송 실패 처리 (Redis Worker용)
+     * @param recipientId 수신자 ID
+     * @param reason 실패 사유
+     */
+    void markRecipientFailed(Long recipientId, String reason);
 }

@@ -43,7 +43,7 @@ public class CapsuleRecipient {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
-    @Column(name = "retry_count", nullable = false)
+    @Column(name = "retry_count", nullable = false, columnDefinition = "int default 0")
     @Builder.Default
     private int retryCount = 0;
 

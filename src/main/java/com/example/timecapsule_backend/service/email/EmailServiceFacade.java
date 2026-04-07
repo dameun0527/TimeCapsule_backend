@@ -40,6 +40,11 @@ public class EmailServiceFacade {
         pick(emailDeliveryConfig.getDefaultStrategy()).accept(toPayload(emailRequest));
     }
 
+    // 스케줄러 발송용 - recipientId 포함
+    public void sendByDefaultStrategy(EmailRequest emailRequest, Long recipientId) {
+        pick(emailDeliveryConfig.getDefaultStrategy()).accept(toPayload(emailRequest, recipientId));
+    }
+
     // ================== 내부 공통 ==================
     private Consumer<EmailPayload> pick(EmailMode mode) {
         return switch (mode) {
@@ -51,6 +56,10 @@ public class EmailServiceFacade {
     }
 
     private EmailPayload toPayload(EmailRequest emailRequest) {
+        return toPayload(emailRequest, null);
+    }
+
+    private EmailPayload toPayload(EmailRequest emailRequest, Long recipientId) {
         EmailRequest.EmailType type = (emailRequest.emailType() == null)
                 ? EmailRequest.EmailType.TEXT : emailRequest.emailType();
         return new EmailPayload(
@@ -59,7 +68,8 @@ public class EmailServiceFacade {
                 type == EmailRequest.EmailType.TEXT ? emailRequest.content() : null,
                 (type == EmailRequest.EmailType.HTML || type == EmailRequest.EmailType.TIMECAPSULE) ? emailRequest.content() : null,
                 emailRequest.themeType(),
-                null
+                null,
+                recipientId
         );
     }
 }

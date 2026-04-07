@@ -1,10 +1,13 @@
 package com.example.timecapsule_backend.service.delivery;
 
+import com.example.timecapsule_backend.config.email.EmailDeliveryConfig;
 import com.example.timecapsule_backend.config.scheduler.CapsuleSchedulerConfig;
+import com.example.timecapsule_backend.service.email.EmailMode;
 import com.example.timecapsule_backend.controller.delivery.dto.DeliveryLogResponse;
 import com.example.timecapsule_backend.controller.email.dto.EmailRequest;
 import com.example.timecapsule_backend.domain.capsule.Capsule;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRecipient;
+import com.example.timecapsule_backend.domain.capsule.CapsuleRecipientRepository;
 import com.example.timecapsule_backend.domain.capsule.CapsuleRepository;
 import com.example.timecapsule_backend.domain.capsule.CapsuleStatus;
 import com.example.timecapsule_backend.domain.deliveryLog.DeliveryLog;
@@ -26,9 +29,11 @@ import java.util.List;
 public class DeliveryServiceImpl implements DeliveryService {
 
     private final CapsuleRepository capsuleRepository;
+    private final CapsuleRecipientRepository capsuleRecipientRepository;
     private final DeliveryLogRepository deliveryLogRepository;
     private final EmailServiceFacade emailServiceFacade;
     private final CapsuleSchedulerConfig schedulerConfig;
+    private final EmailDeliveryConfig emailDeliveryConfig;
 
     @Override
     public List<Long> findDueCapsuleIds(LocalDateTime now) {
@@ -60,6 +65,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         log.info("캡슐 {} 발송 시작. 대상 수신자 수: {}", capsuleId, pendingRecipients.size());
 
+        boolean isRedisQueue = emailDeliveryConfig.getDefaultStrategy() == EmailMode.REDIS_QUEUE;
+
         // 각 수신자별로 개별 발송 시도
         for (CapsuleRecipient recipient : pendingRecipients) {
             try {
@@ -72,15 +79,20 @@ public class DeliveryServiceImpl implements DeliveryService {
                 );
 
                 // 개별 이메일 발송 (yml의 default-strategy 기반)
-                emailServiceFacade.sendByDefaultStrategy(emailRequest);
+                emailServiceFacade.sendByDefaultStrategy(emailRequest, recipient.getId());
 
-                // 발송 성공
-                recipient.markDelivered();
-                log.info("캡슐 {} - 수신자 {} ({}) 발송 성공",
-                        capsuleId, recipient.getUser().getEmail(), recipient.getId());
+                // REDIS_QUEUE 전략은 Worker가 발송 후 상태 업데이트 처리
+                if (!isRedisQueue) {
+                    recipient.markDelivered();
+                    log.info("캡슐 {} - 수신자 {} ({}) 발송 성공",
+                            capsuleId, recipient.getUser().getEmail(), recipient.getId());
+                } else {
+                    log.info("캡슐 {} - 수신자 {} ({}) Redis 큐에 추가됨",
+                            capsuleId, recipient.getUser().getEmail(), recipient.getId());
+                }
 
             } catch (Exception e) {
-                // 발송 실패
+                // 발송 실패 (REDIS_QUEUE는 큐 추가 실패 시에만 여기 도달)
                 recipient.markFailedAttempt(e.getMessage(), schedulerConfig.getMaxRetries());
                 log.warn("캡슐 {} - 수신자 {} ({}) 발송 실패: {}. retryCount={}",
                         capsuleId, recipient.getUser().getEmail(), recipient.getId(),
@@ -113,6 +125,25 @@ public class DeliveryServiceImpl implements DeliveryService {
             case FAILED -> capsule.markFailed();
             default -> throw new BusinessException(ErrorCode.CANCEL_NOT_ALLOWED);
         }
+    }
+
+    @Override
+    @Transactional
+    public void markRecipientDelivered(Long recipientId) {
+        CapsuleRecipient recipient = capsuleRecipientRepository.findById(recipientId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CAPSULE_NOT_FOUND));
+        recipient.markDelivered();
+        log.info("Redis Worker - 수신자 {} 발송 성공 처리 완료", recipientId);
+    }
+
+    @Override
+    @Transactional
+    public void markRecipientFailed(Long recipientId, String reason) {
+        CapsuleRecipient recipient = capsuleRecipientRepository.findById(recipientId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CAPSULE_NOT_FOUND));
+        recipient.markFailedAttempt(reason, schedulerConfig.getMaxRetries());
+        log.warn("Redis Worker - 수신자 {} 발송 실패 처리. reason={}, retryCount={}",
+                recipientId, reason, recipient.getRetryCount());
     }
 
     @Override

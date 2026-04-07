@@ -8,6 +8,7 @@ public record EmailPayload (
     String text,
     String html,
     ThemeType theme,
-    String capsuleTitle
+    String capsuleTitle,
+    Long recipientId
 ){
 }
